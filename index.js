@@ -7,6 +7,7 @@ import {validationResult} from 'express-validator';
 import {registerValidation} from './validations/auth.js';
 
 import UserModel from './models/User.js';
+import checkAuth from './utils/checkAuth.js';
 
 mongoose.connect('mongodb+srv://admin:crosshell4@cluster0.lqzjmlw.mongodb.net/blog?retryWrites=true&w=majority').then(() => console.log('DB ok'))
 .catch((err) => console.log('DB error', err));
@@ -95,6 +96,16 @@ app.post('/auth/register', registerValidation, async (req, res) => {
         res.status(500).json({
             message: 'Не удалось зарегистрироваться',
         });
+    }
+});
+
+app.get('/auth/me', checkAuth, (req, res) =>{
+    try{
+        res.json({
+            success: true,
+        })
+    } catch (err) {
+        res.send("URL NOT FOUND");
     }
 });
 
