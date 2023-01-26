@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
+import dotenv from 'dotenv';
 
 import {registerValidation, loginValidation, postCreateValidation} from './validations/validations.js';
 
@@ -9,7 +10,15 @@ import { handleValidationErrors, checkAuth } from './utils/index.js';
 import { UserController, PostController } from './controllers/index.js';
 
 
-mongoose.connect('mongodb+srv://admin:crosshell4@cluster0.lqzjmlw.mongodb.net/blog?retryWrites=true&w=majority').then(() => console.log('DB ok'))
+dotenv.config();
+
+//const
+const PORT = process.env.PORT || 4444
+const DB_USER = process.env.DB_USER
+const DB_PASSWORD = process.env.DB_PASSWORD
+const DB_NAME = process.env.DB_NAME
+
+mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.lqzjmlw.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`).then(() => console.log('DB ok'))
 .catch((err) => console.log('DB error', err));
 
 
@@ -48,7 +57,7 @@ app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, Post
 app.delete('/posts/:id', checkAuth, PostController.remove);
 app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update);
 
-app.listen(4444, (err) => {
+app.listen(PORT, (err) => {
     if(err) {
         return console.log(err);
     }
