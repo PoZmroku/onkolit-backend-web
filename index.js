@@ -10,6 +10,7 @@ import { handleValidationErrors, checkAuth } from './utils/index.js';
 import { UserController, PostController } from './controllers/index.js';
 
 
+
 dotenv.config();
 
 //const
@@ -23,6 +24,7 @@ mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.lqzjmlw.mongo
 
 
 const app = express();
+
 
 //хранилище для картинок
 const storage = multer.diskStorage({
