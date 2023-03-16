@@ -4,11 +4,12 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
+
 import {registerValidation, loginValidation, postCreateValidation} from './validations/validations.js';
 
 import { handleValidationErrors, checkAuth } from './utils/index.js';
  
-import { UserController, PostController } from './controllers/index.js';
+import { UserController, PostController, ProductController } from './controllers/index.js';
 
 
 
@@ -54,12 +55,21 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
     });
 });
 
+app.get('/tags', PostController.getLastTags)
+
 // роут постов
 app.get('/posts', PostController.getAll);
+app.get('/posts/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
 app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
 app.delete('/posts/:id', checkAuth, PostController.remove);
 app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update);
+
+
+// products routes
+
+app.get('/product', ProductController.getProduct)
+
 
 app.listen(PORT, (err) => {
     if(err) {
