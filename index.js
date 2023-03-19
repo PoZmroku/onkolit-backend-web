@@ -7,9 +7,10 @@ import cors from 'cors';
 
 import {registerValidation, loginValidation, postCreateValidation} from './validations/validations.js';
 
-import { handleValidationErrors, checkAuth } from './utils/index.js';
+import { handleValidationErrors, checkAuth, checkRole } from './utils/index.js';
  
-import { UserController, PostController, ProductController } from './controllers/index.js';
+import { UserController, PostController, ProductController, CartController } from './controllers/index.js';
+
 
 
 
@@ -49,7 +50,7 @@ app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register);
 
-app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+app.post('/upload', checkRole, upload.single('image'), (req, res) => {
     res.json({
         url: `/uploads/${req.file.originalname}`,
     });
@@ -61,14 +62,22 @@ app.get('/tags', PostController.getLastTags)
 app.get('/posts', PostController.getAll);
 app.get('/posts/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
-app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
-app.delete('/posts/:id', checkAuth, PostController.remove);
-app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update);
+app.post('/posts', checkAuth, checkRole, postCreateValidation, handleValidationErrors, PostController.create);
+app.delete('/posts/:id', checkAuth, checkRole, PostController.remove);
+app.patch('/posts/:id', checkAuth, checkRole, postCreateValidation, handleValidationErrors, PostController.update);
 
 
 // products routes
 
-app.get('/product', ProductController.getProduct)
+app.get('/products', ProductController.getProducts)
+app.post('/products', checkAuth, ProductController.create)
+app.get('/products/:id', ProductController.getProduct)
+
+// cart routes
+
+app.post('/cart/add', checkAuth, CartController.add)
+app.get('/cart', checkAuth, CartController.cartItems)
+app.delete('/cart/:productId', checkAuth, CartController.cartDeleteItems)
 
 
 app.listen(PORT, (err) => {
