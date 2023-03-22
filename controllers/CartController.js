@@ -21,7 +21,7 @@ export const add = async (req, res) => {
             cart.items.push(cartItem);
           }
     
-          cart.totalPrice += req.body.price * req.body.quantity;
+          //cart.totalPrice += parseInt(req.body.price * req.body.quantity);  // доработать
           await cart.save();
           res.status(201).send(cart);
         } else {
@@ -29,7 +29,7 @@ export const add = async (req, res) => {
             const newCart = new Cart({
             user: req.userId,
             items: [cartItem],
-            totalPrice: req.body.price * req.body.quantity
+            //totalPrice: parseInt(req.body.price * req.body.quantity)  // доработать
           });
     
           await newCart.save();
