@@ -74,6 +74,7 @@ app.patch('/posts/:id', checkAuth, checkRole, postCreateValidation, handleValida
 app.get('/products', ProductController.getProducts)
 app.post('/products', checkAuth, ProductController.create)
 app.get('/products/:id', ProductController.getProduct)
+app.delete('/product/:id', ProductController.deleteProduct)
 
 // cart routes
 

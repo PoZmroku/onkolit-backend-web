@@ -35,3 +35,16 @@ export const create = async (req, res) => {
   }
 }
 
+export const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findByIdAndDelete(productId);
+    if (!product) {
+      return res.status(404).send({ error: 'Product not found' });
+    }
+    return res.send({ message: 'Product deleted successfully' });
+  } catch (error) {
+    return res.status(500).send({ error: error.message });
+  }
+}
+
