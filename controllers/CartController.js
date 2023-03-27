@@ -1,44 +1,66 @@
 import Cart from "../models/Cart.js";
+import Product from "../models/Product.js";
 
 
 export const add = async (req, res) => {
     try {
-        const cartItem = {
+        let cartItem = {
           product: req.body.productId,
           quantity: req.body.quantity,
-          price: req.body.price
         };
-    
-        const cart = await Cart.findOne({ user: req.userId });
-    
+
+        // Найти в базе данных продукт по productId
+        let product;
+        try {
+          product = await Product.findOne({ _id: cartItem.product });
+        }
+        catch (error) {
+          throw new Error("Product not found");
+        }
+
+        cartItem.price = product.price;
+
+        let cart = await Cart.findOne({ user: req.userId });
+
         if (cart) {
+          
           // Обновляем существующую корзину, если товар уже был добавлен
-            const itemIndex = cart.items.findIndex(p => p.product == req.body.productId);
-            if (itemIndex !== -1) {
-            cart.items[itemIndex].quantity += req.body.quantity;
-            cart.items[itemIndex].price += req.body.price;
+          let itemIndex = cart.items.findIndex(p => p.product == req.body.productId);
+          if (itemIndex !== -1) {
+            
+            cart.items[itemIndex].quantity += cartItem.quantity;
+            cart.items[itemIndex].price += cartItem.price;
           } else {
+            
             cart.items.push(cartItem);
+            itemIndex = cart.items.length - 1;
           }
-    
-          //cart.totalPrice += parseInt(req.body.price * req.body.quantity);  // доработать
-          await cart.save();
-          res.status(201).send(cart);
         } else {
           // Создаем новую корзину
-            const newCart = new Cart({
+          cart = new Cart({
             user: req.userId,
-            items: [cartItem],
-            //totalPrice: parseInt(req.body.price * req.body.quantity)  // доработать
+            items: [cartItem]
           });
-    
-          await newCart.save();
-          res.status(201).send(newCart);
         }
+        cart.totalPrice = calculateTotalPrice(cart.items);
+        
+        // Сохраняем корзину в базу данных
+        await cart.save();
+
+        res.status(201).send(cart);
+
       } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Ошибка добавления в корзину');
+        res.status(500).send(error.message);
       }
+}
+
+function calculateTotalPrice(cartItems) {
+  let totalPrice = 0;
+  cartItems.forEach(item => {
+    totalPrice += item.price;
+  });
+  
+  return totalPrice;
 }
 
 

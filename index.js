@@ -9,7 +9,7 @@ import {registerValidation, loginValidation, postCreateValidation} from './valid
 
 import { handleValidationErrors, checkAuth, checkRole } from './utils/index.js';
  
-import { UserController, PostController, ProductController, CartController } from './controllers/index.js';
+import { UserController, PostController, ProductController, CartController, OrderController } from './controllers/index.js';
 
 
 
@@ -81,6 +81,11 @@ app.delete('/product/:id', ProductController.deleteProduct)
 app.post('/cart/add', checkAuth, CartController.add)
 app.get('/cart', checkAuth, CartController.cartItems)
 app.delete('/cart/:productId', checkAuth, CartController.cartDeleteItems)
+
+// order route
+
+app.post('/order', checkAuth, OrderController.getOrder)
+app.get('/orders', checkAuth, OrderController.orders)
 
 
 app.listen(PORT, (err) => {
