@@ -28,6 +28,10 @@ const CartSchema = new mongoose.Schema({
       required: true,
       default: 0
     },
+    locked: {
+      type: Boolean,
+      default: false
+    },
     createdAt: {
       type: Date,
       default: Date.now

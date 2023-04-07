@@ -7,7 +7,9 @@ import cors from 'cors';
 
 import {registerValidation, loginValidation, postCreateValidation} from './validations/validations.js';
 
-import { handleValidationErrors, checkAuth, checkRole } from './utils/index.js';
+import { handleValidationErrors, checkAuth } from './utils/index.js';
+
+import checkRole from './utils/checkRole.js';
  
 import { UserController, PostController, ProductController, CartController, OrderController } from './controllers/index.js';
 
@@ -51,7 +53,7 @@ app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register);
 
-app.post('/upload', checkRole, upload.single('image'), (req, res) => {
+app.post('/upload', checkRole(['admin']), upload.single('image'), (req, res) => {
     res.json({
         url: `/uploads/${req.file.originalname}`,
     });
@@ -64,9 +66,9 @@ app.get('/tags', PostController.getLastTags)
 app.get('/posts', PostController.getAll);
 app.get('/posts/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
-app.post('/posts', checkAuth, checkRole, postCreateValidation, handleValidationErrors, PostController.create);
-app.delete('/posts/:id', checkAuth, checkRole, PostController.remove);
-app.patch('/posts/:id', checkAuth, checkRole, postCreateValidation, handleValidationErrors, PostController.update);
+app.post('/posts', checkAuth, checkRole(["admin", "manager"]), postCreateValidation, handleValidationErrors, PostController.create);
+app.delete('/posts/:id', checkAuth, checkRole(["admin", "manager"]), PostController.remove);
+app.patch('/posts/:id', checkAuth, checkRole(["admin", "manager"]), postCreateValidation, handleValidationErrors, PostController.update);
 
 
 // products routes
@@ -84,7 +86,7 @@ app.delete('/cart/:productId', checkAuth, CartController.cartDeleteItems)
 
 // order route
 
-app.post('/order', checkAuth, OrderController.getOrder)
+app.post('/order', checkAuth, OrderController.saveOrder)
 app.get('/orders', checkAuth, OrderController.orders)
 
 

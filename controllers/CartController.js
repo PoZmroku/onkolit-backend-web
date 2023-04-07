@@ -22,7 +22,7 @@ export const add = async (req, res) => {
 
         let cart = await Cart.findOne({ user: req.userId });
 
-        if (cart) {
+        if (cart && !cart.locked) {
           
           // Обновляем существующую корзину, если товар уже был добавлен
           let itemIndex = cart.items.findIndex(p => p.product == req.body.productId);

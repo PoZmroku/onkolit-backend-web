@@ -1,36 +1,38 @@
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
+import User from '../models/User.js';
 
-export const getOrder = async (req, res) => {
+export const saveOrder = async (req, res) => {
   try {
-    const { userId, cartId, shippingAddress } = req.body;
+    const { cartId, shippingAddress } = req.body;
+    const userId = req.userId; // извлекаем id пользователя из токена
 
-    // Получаем корзину из базы данных по ее ID
-    const cart = await Cart.findById(cartId);
+    // Проверяем, что корзина существует и принадлежит пользователю
+    const cart = await Cart.findOne({ _id: cartId }).populate({ path: 'user', select: ['fullName', 'email', 'id']});
+    const user = cart.user;
 
-    // Проверяем, что корзина найдена и принадлежит пользователю
-    if (!cart || cart.user.toString() !== userId) {
+    if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    // Вычисляем общую стоимость заказа
-    //const totalPrice = cart.items.reduce((total, item) => total + item.price * item.quantity, 0);
-
-    // Создаем новый заказ на основе данных корзины и адреса доставки
-    const order = await Order.create({
-      cart: cart._id,
-      items: cart.items,
-      //totalPrice,
-      shippingAddress,
+    //Создаем новый заказ на основе корзины
+    const order = new Order({
+      user: user,
+      cart: cart,
+      shippingAddress: shippingAddress
     });
 
-    // Удаляем корзину, так как она больше не нужна
-    await cart.remove();
+    console.log('order', order);
+
+    // Сохраняем заказ в базу данных
+    cart.locked = true;
+    await cart.save();
+    await order.save();
 
     res.status(201).json(order);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server Error' });
   }
 
 }
