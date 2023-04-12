@@ -74,9 +74,9 @@ app.patch('/posts/:id', checkAuth, checkRole(["admin", "manager"]), postCreateVa
 // products routes
 
 app.get('/products', ProductController.getProducts)
-app.post('/products', checkAuth, ProductController.create)
+app.post('/products', checkAuth, checkRole(["admin"]), ProductController.create)
 app.get('/products/:id', ProductController.getProduct)
-app.delete('/product/:id', ProductController.deleteProduct)
+app.delete('/product/:id', checkAuth, checkRole(["admin"]), ProductController.deleteProduct)
 
 // cart routes
 
