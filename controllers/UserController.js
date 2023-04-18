@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
 import UserModel from '../models/User.js';
+import { isTokenExpired } from '../utils/checkAuth.js';
+import { tokenBlacklistStore } from '../utils/tokenBlacklistStore.js';
 
 
 export const register = async (req, res) => {
@@ -26,7 +28,7 @@ export const register = async (req, res) => {
             role: user.role,
         }, 'secret123',
         {
-            expiresIn: '30d',
+            expiresIn: '24h',
         },
     );
 
@@ -67,7 +69,7 @@ export const login = async (req, res) => {
                 role: user.role,
             }, 'secret123',
             {
-                expiresIn: '30d',
+                expiresIn: '24h',
             },
         );
         const { passwordHash, ... userData } = user._doc;
@@ -104,4 +106,33 @@ export const getMe = async (req, res) => {
             message: 'Нет доступа',
         });
     }
+};
+
+
+export const checkIfTokenExpired = async (req, res) => {
+    const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
+
+    if (!token) {
+        return res.status(200).send(true);
+    }
+
+    const decoded = jwt.verify(token, 'secret123');
+
+    const isExpired = isTokenExpired(decoded);
+
+    return res.status(200).send(isExpired);
+};
+
+export const logout = async (req, res) => {
+    const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
+
+    if (!token) {
+        return res.status(200).send();
+    }
+    
+    const decoded = jwt.verify(token, 'secret123');
+    
+    tokenBlacklistStore.set(token, decoded.exp ?? 0);
+    
+    return res.status(200).send();
 };

@@ -7,10 +7,13 @@ import cors from 'cors';
 
 import {registerValidation, loginValidation, postCreateValidation} from './validations/validations.js';
 
-import { handleValidationErrors, checkAuth } from './utils/index.js';
+import {
+    handleValidationErrors,
+    checkAuth,
+    checkRole,
+    tokenBlacklistStoreFactory
+} from './utils/index.js';
 
-import checkRole from './utils/checkRole.js';
- 
 import { UserController, PostController, ProductController, CartController, OrderController } from './controllers/index.js';
 
 
@@ -30,6 +33,7 @@ mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.lqzjmlw.mongo
 
 const app = express();
 
+tokenBlacklistStoreFactory();
 
 //хранилище для картинок
 const storage = multer.diskStorage({
@@ -52,6 +56,9 @@ app.use('/uploads', express.static('uploads'));
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidationErrors, UserController.register);
+app.get('/auth/isTokenExpired', UserController.checkIfTokenExpired);
+app.get('/logout', checkAuth, UserController.logout);
+
 
 app.post('/upload', checkRole(['admin']), upload.single('image'), (req, res) => {
     res.json({
@@ -81,13 +88,13 @@ app.delete('/product/:id', checkAuth, checkRole(["admin"]), ProductController.de
 // cart routes
 
 app.post('/cart/add', checkAuth, CartController.add)
-app.get('/cart', checkAuth, CartController.cartItems)
+app.get('/cart/:id', checkAuth, CartController.cartItems)
 app.delete('/cart/:productId', checkAuth, CartController.cartDeleteItems)
 
 // order route
 
 app.post('/order', checkAuth, OrderController.saveOrder)
-app.get('/orders', checkAuth, OrderController.orders)
+app.get('/orders/:id', checkAuth, OrderController.orders)
 
 
 app.listen(PORT, (err) => {

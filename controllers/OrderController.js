@@ -39,7 +39,7 @@ export const saveOrder = async (req, res) => {
 
 export const orders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.userId }).populate('items.product');
+    const orders = await Order.find({ user: req.userId });
 
     res.status(200).json(orders);
   } catch (err) {

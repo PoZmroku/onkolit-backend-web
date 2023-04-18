@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export default function checkRole (roles) {
+export const checkRole = (roles) => {
   return function(req, res, next) {
   const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
     try {

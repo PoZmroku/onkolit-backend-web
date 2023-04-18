@@ -19,6 +19,7 @@ export const add = async (req, res) => {
         }
 
         cartItem.price = product.price;
+        cartItem.name = product.name;
 
         let cart = await Cart.findOne({ user: req.userId });
 
@@ -66,12 +67,12 @@ function calculateTotalPrice(cartItems) {
 
 export const cartItems = async (req, res) => {
     try {
-        const cart = await Cart.findOne({ user: req.userId }).populate('items.product');
-        res.status(200).send(cart);
-      } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server Error');
-      }
+      const cart = await Cart.findOne({ user: req.userId });
+      res.status(200).send(cart);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Server Error');
+    }
 }
 
 export const cartDeleteItems = async (req, res) => {
