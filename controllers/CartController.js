@@ -6,7 +6,7 @@ export const add = async (req, res) => {
     try {
         let cartItem = {
           product: req.body.productId,
-          quantity: req.body.quantity,
+          quantity: req.body.quantity
         };
 
         // Найти в базе данных продукт по productId
@@ -76,6 +76,7 @@ export const cartItems = async (req, res) => {
 }
 
 export const cartDeleteItems = async (req, res) => {
+  const productId = req.body.id;
     try {
         const cart = await Cart.findOne({ user: req.userId });
     
@@ -83,10 +84,11 @@ export const cartDeleteItems = async (req, res) => {
           return res.status(400).json({ msg: 'Корзина не найдена' });
         }
     
-        const itemIndex = cart.items.findIndex(p => p.product == req.params.productId);
+        const itemIndex = cart.items.findIndex(p => p.product == productId);
         if (itemIndex !== -1) {
-          cart.totalPrice -= cart.items[itemIndex].price * cart.items[itemIndex].quantity;
+          cart.totalPrice -= cart.items[itemIndex].price;
           cart.items.splice(itemIndex, 1);
+          calculateTotalPrice(cart.items);
           await cart.save();
         } else {
           return res.status(400).json({ msg: 'Товар не найден в корзине' });
