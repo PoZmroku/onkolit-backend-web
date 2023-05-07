@@ -81,20 +81,20 @@ app.patch('/posts/:id', checkAuth, checkRole(["admin", "manager"]), postCreateVa
 // products routes
 
 app.get('/products', ProductController.getProducts)
-app.post('/products', checkAuth, checkRole(["admin"]), ProductController.create)
-app.get('/products/:id', ProductController.getProduct)
-app.delete('/product/:id', checkAuth, checkRole(["admin"]), ProductController.deleteProduct)
+app.post('/product/add', checkAuth, checkRole(["admin"]), ProductController.create)
+app.get('/product/:id', ProductController.getProduct)
+app.delete('/product/delete/:id', checkAuth, checkRole(["admin"]), ProductController.deleteProduct)
 
 // cart routes
 
 app.post('/cart/add', checkAuth, CartController.add)
-app.get('/cart/:id', checkAuth, CartController.cartItems)
-app.delete('/cart/:productId', checkAuth, CartController.cartDeleteItems)
+app.get('/cart', checkAuth, CartController.cartItems)
+app.post('/cart/delete', checkAuth, CartController.cartDeleteItems)
 
 // order route
 
 app.post('/order', checkAuth, OrderController.saveOrder)
-app.get('/orders/:id', checkAuth, OrderController.orders)
+app.get('/orders', checkAuth, OrderController.orders)
 
 
 app.listen(PORT, (err) => {

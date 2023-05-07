@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import mongoose from 'mongoose';
 
 export const getProducts = async (req, res) => {
     try {
@@ -10,13 +11,12 @@ export const getProducts = async (req, res) => {
 }
 
 export const getProduct = async (req, res) => {
-    const productId = req.params.id;
   try {
-    const product = await Product.findById(productId);
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.json({ product });
+    res.json(product);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error' });

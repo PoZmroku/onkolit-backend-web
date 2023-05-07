@@ -72,7 +72,7 @@ export const login = async (req, res) => {
                 expiresIn: '24h',
             },
         );
-        const { passwordHash, ... userData } = user._doc;
+        const { role, passwordHash, ... userData } = user._doc;
     
         res.json({
             ... userData,
